@@ -166,6 +166,13 @@ const SAMPLE_TEMPLATES = [
 ];
 let backendUp = true;
 
+// Parses JSON only if there actually is a body; never throws on empty/non-JSON responses.
+async function safeJson(res){
+  const text = await res.text();
+  if(!text) return null;
+  try{ return JSON.parse(text); }catch(e){ return null; }
+}
+
 function verdictFor(label){
   const map = {
     "High": {text:"STRONG MATCH", weak:false},
@@ -206,7 +213,8 @@ async function renderTemplates(){
   try{
     const res = await fetch(`${API}/api/templates`);
     if(!res.ok) throw new Error();
-    const templates = await res.json();
+    const templates = await safeJson(res);
+    if(!templates) throw new Error();
     backendUp = true;
     if(templates.length===0){ grid.innerHTML = "<p style='color:#9C9686;'>No templates filed yet. Add one below to get started.</p>"; return; }
     grid.innerHTML = templates.map(t=>`
@@ -243,7 +251,10 @@ async function addTemplate(){
   status.textContent = "Filing...";
   try{
     const res = await fetch(`${API}/api/templates`, {method:"POST", body:form});
-    if(!res.ok) throw new Error((await res.json()).detail || "Upload failed");
+    if(!res.ok){
+      const body = await safeJson(res);
+      throw new Error(body?.detail || `Upload failed (status ${res.status})`);
+    }
     status.textContent = "Filed.";
     document.getElementById('tplName').value='';
     document.getElementById('tplCategory').value='';
@@ -265,8 +276,12 @@ async function runMatch(){
   slot.classList.add('busy');
   try{
     const res = await fetch(`${API}/api/match`, {method:"POST", body:form});
-    if(!res.ok) throw new Error((await res.json()).detail || "Match failed");
-    const data = await res.json();
+    if(!res.ok){
+      const body = await safeJson(res);
+      throw new Error(body?.detail || `Match failed (status ${res.status})`);
+    }
+    const data = await safeJson(res);
+    if(!data) throw new Error("Server returned an empty response.");
 
     document.querySelector('.results .note').textContent = `Extraction: ${data.extraction_method}`;
     document.getElementById('resultList').innerHTML = data.top_matches.map(m=>{
