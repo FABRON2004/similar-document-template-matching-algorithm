@@ -157,6 +157,15 @@ function showTab(name){
 }
 
 // Map backend confidence_label -> stamp text + weak styling
+// Fallback data shown only when the backend can't be reached, so the
+// page never looks broken/blank while you're demoing without the server up.
+const SAMPLE_TEMPLATES = [
+  {id:"s1", name:"Invoice Template A", category:"Finance", filename:"invoice_a.pdf"},
+  {id:"s2", name:"Certificate of Completion", category:"Education", filename:"certificate.docx"},
+  {id:"s3", name:"Purchase Order", category:"Finance", filename:"po_template.pdf"},
+];
+let backendUp = true;
+
 function verdictFor(label){
   const map = {
     "High": {text:"STRONG MATCH", weak:false},
@@ -172,11 +181,23 @@ async function checkHealth(){
   try{
     const res = await fetch(`${API}/api/health`);
     if(!res.ok) throw new Error();
-    notice.textContent = "Connected to backend.";
+    backendUp = true;
     notice.style.display = "none";
   }catch(e){
-    notice.textContent = "Could not reach the backend API. Make sure the server is running.";
+    backendUp = false;
+    notice.textContent = "Could not reach the backend — showing sample templates below as a preview.";
+    notice.style.display = "block";
   }
+}
+
+function renderSampleCards(){
+  const grid = document.getElementById('tplGrid');
+  grid.innerHTML = SAMPLE_TEMPLATES.map(t=>`
+    <div class="card">
+      <span class="tag">${t.category} · preview</span>
+      <h3>${t.name}</h3>
+      <span class="filename">${t.filename}</span>
+    </div>`).join('');
 }
 
 async function renderTemplates(){
@@ -184,7 +205,9 @@ async function renderTemplates(){
   grid.innerHTML = "<p style='color:#9C9686;'>Loading…</p>";
   try{
     const res = await fetch(`${API}/api/templates`);
+    if(!res.ok) throw new Error();
     const templates = await res.json();
+    backendUp = true;
     if(templates.length===0){ grid.innerHTML = "<p style='color:#9C9686;'>No templates filed yet. Add one below to get started.</p>"; return; }
     grid.innerHTML = templates.map(t=>`
       <div class="card">
@@ -194,11 +217,13 @@ async function renderTemplates(){
         <button class="del-link" onclick="removeTemplate(${t.id})">Remove</button>
       </div>`).join('');
   }catch(e){
-    grid.innerHTML = "<p style='color:#B3261E;'>Couldn't load templates. Is the backend running?</p>";
+    backendUp = false;
+    renderSampleCards();
   }
 }
 
 async function removeTemplate(id){
+  if(!backendUp) return; // sample cards aren't real — nothing to delete
   await fetch(`${API}/api/templates/${id}`, {method:"DELETE"});
   renderTemplates();
 }
