@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Docket — Document Template Matcher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14181C; --ink-soft:#1D2329; --paper:#FBF9F4; --paper-dim:#EDEAE2;
+    --stamp:#B3261E; --brass:#A67C3D; --graphite:#8B94A0; --line:#2B333B;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{
+    margin:0; background:var(--ink); color:var(--paper);
+    font-family:'IBM Plex Sans',sans-serif;
+    padding:calc(28px + env(safe-area-inset-top,0px)) 20px calc(60px + env(safe-area-inset-bottom,0px));
+  }
+  .wrap{max-width:940px; margin:0 auto;}
+  .brand{display:flex; align-items:baseline; gap:10px; margin-bottom:2px;}
+  .brand h1{font-family:'Fraunces',serif; font-weight:600; font-size:1.9rem; margin:0; letter-spacing:-0.01em;}
+  .brand span{color:var(--graphite); font-size:0.85rem;}
+  .tagline{color:var(--graphite); margin:0 0 26px; max-width:52ch; line-height:1.5;}
+
+  nav{display:flex; gap:2px; margin-bottom:0;}
+  .tab{
+    font-family:'IBM Plex Sans',sans-serif; font-weight:500; font-size:0.88rem;
+    background:var(--ink-soft); color:var(--graphite); border:1px solid var(--line); border-bottom:none;
+    padding:10px 18px 12px; border-radius:8px 8px 0 0; cursor:pointer; position:relative; top:1px;
+  }
+  .tab.active{background:var(--paper); color:var(--ink); border-color:var(--paper);}
+  .panel{
+    background:var(--paper); color:var(--ink); border-radius:0 10px 10px 10px;
+    padding:28px; border:1px solid var(--paper);
+  }
+  .hidden{display:none;}
+  .panel-sub{color:#8A8577; font-size:0.85rem; margin:0 0 22px; max-width:60ch; line-height:1.5;}
+
+  .catgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-top:22px;}
+  .catcard{ border:1px solid #E4E0D4; border-radius:10px; padding:16px; background:#fff; }
+  .catcard .icon{font-size:1.3rem; margin-bottom:6px;}
+  .catcard h4{margin:0 0 10px; font-size:0.98rem; font-family:'Fraunces',serif; font-weight:600;}
+  .catcard .bar{background:#EDEAE2; height:6px; border-radius:4px; overflow:hidden; margin-bottom:8px;}
+  .catcard .bar div{height:100%; background:var(--brass);}
+  .catcard .row{display:flex; align-items:baseline; justify-content:space-between;}
+  .catcard .score{font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:1.15rem;}
+  .catcard .stamp{
+    font-family:'IBM Plex Sans',sans-serif; font-weight:600; font-size:0.64rem;
+    color:var(--stamp); border:2px solid var(--stamp); border-radius:4px;
+    padding:3px 7px; display:inline-block; letter-spacing:0.03em;
+  }
+  .catcard .stamp.weak{color:var(--graphite); border-color:var(--graphite); opacity:0.75;}
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:14px; margin-top:18px;}
+  .card{
+    background:var(--paper); border:1px solid #D8D3C6; border-radius:2px 10px 2px 2px;
+    padding:14px 14px 12px; position:relative;
+  }
+  .card::before{
+    content:""; position:absolute; top:0; left:0; width:16px; height:16px;
+    background:linear-gradient(135deg, transparent 50%, #D8D3C6 50%); border-radius:0 0 0 2px;
+  }
+  .card h3{font-family:'Fraunces',serif; font-size:1.02rem; font-weight:600; margin:0 0 8px;}
+  .tag{
+    display:inline-block; font-size:0.72rem; color:var(--brass); border:1px solid var(--brass);
+    padding:2px 8px; border-radius:20px; margin-bottom:8px;
+  }
+  .filename{color:#8A8577; font-size:0.78rem; display:block; margin-bottom:10px;}
+  .del-link{background:none; border:none; color:#A9A296; font-size:0.75rem; cursor:pointer; padding:0; text-decoration:underline;}
+  .del-link:hover{color:var(--stamp);}
+
+  .addbar{display:flex; gap:10px; flex-wrap:wrap; margin-top:22px; padding-top:20px; border-top:1px solid #E4E0D4;}
+  input[type=text], input[type=file]{
+    font-family:inherit; font-size:0.85rem; padding:9px 11px; border:1px solid #D2CCBC;
+    border-radius:6px; background:#fff; color:var(--ink);
+  }
+  input[type=text]{flex:1; min-width:140px;}
+  button.action{
+    font-family:'IBM Plex Sans',sans-serif; font-weight:600; font-size:0.85rem;
+    background:var(--ink); color:var(--paper); border:none; border-radius:6px;
+    padding:10px 18px; cursor:pointer;
+  }
+  button.action:hover{background:#2A3138;}
+  .status{font-size:0.78rem; color:#8A8577; margin-top:8px;}
+
+  .slot{
+    border:2px dashed #C9C2AE; border-radius:10px; padding:30px 20px; text-align:center;
+    background:#F5F2EA; position:relative; overflow:hidden;
+  }
+  .slot.busy::after{
+    content:""; position:absolute; left:0; top:0; width:100%; height:3px; background:var(--brass);
+    animation:sweep 1.1s ease-in-out;
+  }
+  @keyframes sweep{ from{transform:translateY(0);} to{transform:translateY(200px);} }
+  .slot p{margin:0 0 14px; color:#6B6558; font-size:0.9rem;}
+  .slot .hint{font-size:0.76rem; color:#9C9686; margin-top:10px;}
+  .file-meta{
+    margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+    min-height:22px;
+  }
+  .file-chip{
+    display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px;
+    border:1px solid #D9D2C5; background:#fff; color:#2D343B; font-size:0.74rem;
+  }
+  .file-chip .dot{width:8px; height:8px; border-radius:50%; background:var(--brass); display:inline-block;}
+
+  .results{margin-top:24px;}
+  .results h2{font-family:'Fraunces',serif; font-size:1.1rem; font-weight:600; margin:0 0 4px;}
+  .results .note{color:#8A8577; font-size:0.78rem; margin:0 0 16px;}
+  .result{
+    display:flex; align-items:center; gap:16px; border:1px solid #E4E0D4; border-radius:8px;
+    padding:14px 16px; margin-bottom:10px; background:#fff;
+  }
+  .result .info{flex:1; min-width:0;}
+  .result h4{margin:0 0 6px; font-size:0.95rem;}
+  .bar{background:#EDEAE2; height:6px; border-radius:4px; overflow:hidden;}
+  .bar div{height:100%; background:var(--brass);}
+  .score{
+    font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:1.3rem; width:64px; text-align:right;
+  }
+  .stamp{
+    font-family:'IBM Plex Sans',sans-serif; font-weight:600; font-size:0.68rem;
+    color:var(--stamp); border:2px solid var(--stamp); border-radius:4px;
+    padding:4px 8px; transform:rotate(-6deg); white-space:nowrap; letter-spacing:0.04em;
+  }
+  .stamp.weak{color:var(--graphite); border-color:var(--graphite); opacity:0.7;}
+  .notice{
+    background:var(--ink-soft); border:1px dashed var(--line); border-radius:8px; color:var(--graphite);
+    font-size:0.78rem; padding:10px 14px; margin-bottom:22px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><h1>Docket</h1><span>template matching</span></div>
+  <p class="tagline">File your templates once. Drop in any document afterward and Docket points to the closest match, ranked by meaning — not just shared words.</p>
+  <div class="notice" id="apiNotice">Connecting to backend…</div>
+
+  <nav>
+    <button class="tab active" onclick="showPage('categories')">Compare against categories</button>
+    <button class="tab" onclick="showPage('templates')">Your templates</button>
+  </nav>
+
+  <!-- PAGE 1: fixed categories -->
+  <div class="panel" id="page-categories">
+    <p class="panel-sub">Upload one document and compare it against the built-in categories or add 2+ template files to score them together. The layout stays the same; the comparison pool just gets bigger.</p>
+
+    <div class="grid" id="catDemoGrid"></div>
+
+    <div class="slot" id="catSlot" style="margin-top:22px;">
+      <p>Upload a template image or document</p>
+      <input type="file" id="catFile" accept="image/*,.pdf,.docx,.txt" multiple>
+      <div class="file-meta" id="catFileMeta" aria-live="polite"></div>
+      <div class="hint">No front preview is shown. The uploaded template is processed only to calculate its similarity score against the category samples.</div>
+    </div>
+    <button class="action" style="margin-top:16px;" onclick="runCategoryCompare()">Compare against categories</button>
+
+    <div class="results hidden" id="catResults">
+      <h2>Category similarity</h2>
+      <p class="note" id="catNote">Offline text-similarity estimate</p>
+      <div class="catgrid" id="catGrid"></div>
+    </div>
+  </div>
+
+  <!-- PAGE 2: user's own templates -->
+  <div class="panel hidden" id="page-templates">
+    <p class="panel-sub">File your own reference templates below, then upload a document to see which of your filed templates it matches most closely. You can add 2+ templates in one go.</p>
+
+    <h3 style="font-family:'Fraunces',serif; font-size:1rem; margin:0 0 4px;">Your filed templates</h3>
+    <div class="grid" id="tplGrid"></div>
+    <div class="addbar">
+      <input type="text" id="tplName" placeholder="Template name">
+      <input type="text" id="tplCategory" placeholder="Category">
+      <input type="file" id="tplFile" multiple>
+      <button class="action" onclick="addTemplate()">File template</button>
+    </div>
+    <div class="status" id="tplStatus"></div>
+
+    <div style="margin-top:32px; padding-top:24px; border-top:1px solid #E4E0D4;">
+      <h3 style="font-family:'Fraunces',serif; font-size:1rem; margin:0 0 14px;">Match a document against your templates</h3>
+      <div class="slot" id="matchSlot">
+        <p>Drop a file here, or choose one</p>
+        <input type="file" id="matchFile">
+        <div class="hint">PDF · DOCX · TXT · scanned images all accepted</div>
+      </div>
+      <button class="action" style="margin-top:16px;" onclick="runMatch()">Find matches</button>
+      <div class="results hidden" id="results">
+        <h2>Closest matches</h2>
+        <p class="note" id="matchNote">Extraction: native_text (sample)</p>
+        <div id="resultList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script>
+const API = ""; // same origin as this page
+
+function showPage(name){
+  document.getElementById('page-categories').classList.toggle('hidden', name!=='categories');
+  document.getElementById('page-templates').classList.toggle('hidden', name!=='templates');
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',(name==='categories'&&i===0)||(name==='templates'&&i===1)));
+}
+
+// ---------------------------------------------------------------------------
+// Fixed universal categories for page 1. Each carries representative
+// vocabulary so a real (if simple) similarity score can be computed even
+// with no backend running — this page never depends on your filed templates.
+// ---------------------------------------------------------------------------
+const CATEGORY_KEYWORDS = {
+  business: [
+    "business","company","organization","proposal","client","customer","vendor","partner",
+    "contract","agreement","invoice","bill","budget","sales","marketing","strategy",
+    "revenue","profit","expense","operations","team","deliverable","timeline","project",
+    "employee","management","stakeholder","service","product","pricing","offer","renewal",
+    "campaign","audience","brand","promotion","positioning","market","plan","growth","pipeline",
+    "message","target","goals","roadmap","launch","research","insights","competitive","analysis"
+  ],
+  education: [
+    "student","teacher","school","college","university","course","semester","grade",
+    "class","syllabus","exam","assignment","marks","certificate","transcript","enrollment",
+    "curriculum","faculty","attendance","academic","admission","department","scholarship"
+  ],
+  medical: [
+    "patient","doctor","physician","hospital","clinic","diagnosis","treatment","symptom",
+    "medication","prescription","vital","blood","pressure","lab","test","report","immunization",
+    "allergy","appointment","discharge","consultation","referral","record","care","nurse"
+  ],
+  financial: [
+    "balance","sheet","income","statement","cash","flow","assets","liabilities","equity",
+    "revenue","expense","profit","loan","bank","account","investment","stock","dividend",
+    "tax","audit","financial","year","portfolio","credit","interest","payable","receivable"
+  ],
+};
+
+const CATEGORIES = [
+  {
+    key: "business",
+    label: "Business",
+    icon: "🏢",
+    cardName: "Business Proposal Template",
+    cardFile: "business_proposal.pdf",
+    text: `Business Proposal Executive Summary Company Overview Market Analysis
+    Objectives Strategy Marketing Plan Sales Forecast Operations Plan
+    Management Team Organizational Structure Financial Projections Revenue
+    Model Competitive Analysis Risk Assessment Growth Strategy Partnership
+    Agreement Stakeholders Meeting Minutes Action Items Deliverables Timeline
+    Milestones Budget Allocation Return on Investment Board of Directors
+    Client Customer Vendor Proposal Contract Invoice Budget Service Product
+    Pricing Offer Renewal Operations Team Campaign Audience Brand Promotion
+    Positioning Market Research Insights Launch Goals Roadmap Message Target
+    Competitive Analysis Growth Plan` ,
+    keywords: CATEGORY_KEYWORDS.business
+  },
+  {
+    key: "education",
+    label: "Education",
+    icon: "🎓",
+    cardName: "Academic Transcript Template",
+    cardFile: "transcript.docx",
+    text: `Academic Transcript Student Name Course Title Semester Grade Point
+    Average Credits Earned Attendance Record Curriculum Syllabus Examination
+    Marks Assignment Submission Report Card Principal Signature School Name
+    Enrollment Number Subject Marks Obtained Total Marks Percentage Scored
+    Class Rank Extracurricular Activities Academic Achievement Certificate
+    of Merit Faculty Advisor Student Teacher College University Course Grade` ,
+    keywords: CATEGORY_KEYWORDS.education
+  },
+  {
+    key: "medical",
+    label: "Medical",
+    icon: "🩺",
+    cardName: "Patient Health Record Template",
+    cardFile: "patient_record.pdf",
+    text: `Patient Name Date of Birth Medical Record Number Diagnosis
+    Prescription Dosage Physician Name Hospital Name Treatment Plan Symptoms
+    Vital Signs Blood Pressure Lab Results Test Report Follow Up Appointment
+    Discharge Summary Allergies Medication History Consultation Notes
+    Referral Insurance Claim Health Checkup Immunization Record Ward Number
+    Doctor Nurse Clinic Care Medication Surgery Diagnosis Treatment` ,
+    keywords: CATEGORY_KEYWORDS.medical
+  },
+  {
+    key: "financial",
+    label: "Financial",
+    icon: "💰",
+    cardName: "Balance Sheet Template",
+    cardFile: "balance_sheet.xlsx",
+    text: `Balance Sheet Income Statement Cash Flow Statement Assets Liabilities
+    Equity Revenue Expenses Net Profit Gross Margin Tax Filing Audit Report
+    Bank Statement Account Number Transaction History Investment Portfolio
+    Interest Rate Loan Agreement Credit Score Financial Year Quarterly Report
+    Annual Report Shareholder Dividend Fiscal Period Cash Flow Balance Sheet` ,
+    keywords: CATEGORY_KEYWORDS.financial
+  },
+];
+
+let backendUp = true;
+// In-memory store of custom templates filed while the backend is
+// unreachable, so page 2's matcher still has something to compare against.
+// This resets on reload — the real backend (SQLite) is the persistent store.
+let localCustomTemplates = [];
+let customCategoryTemplates = [];
+
+function getCategoryPool(){
+  return [
+    ...CATEGORIES,
+    ...customCategoryTemplates.map((t, index) => ({
+      key: `custom-${index}`,
+      label: t.name || `Custom Template ${index + 1}`,
+      icon: '📄',
+      cardName: t.name || `Custom Template ${index + 1}`,
+      cardFile: t.filename || `custom_${index + 1}.txt`,
+      text: t.text || ''
+    }))
+  ];
+}
+
+async function safeJson(res){
+  const text = await res.text();
+  if(!text) return null;
+  try{ return JSON.parse(text); }catch(e){ return null; }
+}
+
+function verdictFor(label){
+  const map = {
+    "High": {text:"STRONG MATCH", weak:false},
+    "Medium": {text:"POSSIBLE MATCH", weak:false},
+    "Low": {text:"WEAK MATCH", weak:true},
+    "Very Low": {text:"NO MATCH", weak:true},
+  };
+  return map[label] || {text:label ? label.toUpperCase() : "UNKNOWN", weak:true};
+}
+
+function confidenceLabelFor(score){
+  if(score >= 0.80) return "High";
+  if(score >= 0.60) return "Medium";
+  if(score >= 0.40) return "Low";
+  return "Very Low";
+}
+
+// ---------------------------------------------------------------------------
+// Local bag-of-words cosine similarity — a lightweight stand-in for the
+// backend's real sentence-transformer embeddings. Used on page 1 always,
+// and on page 2 only when the FastAPI backend can't be reached.
+// ---------------------------------------------------------------------------
+function tokenize(text){
+  return (text || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter(w => w.length > 1);
+}
+function wordFreq(tokens){
+  const freq = {};
+  for(const t of tokens){ freq[t] = (freq[t] || 0) + 1; }
+  return freq;
+}
+function cosineSimilarity(freqA, freqB){
+  const keys = new Set([...Object.keys(freqA), ...Object.keys(freqB)]);
+  let dot = 0, magA = 0, magB = 0;
+  for(const k of keys){
+    const a = freqA[k] || 0;
+    const b = freqB[k] || 0;
+    dot += a * b; magA += a * a; magB += b * b;
+  }
+  if(magA === 0 || magB === 0) return 0;
+  return dot / (Math.sqrt(magA) * Math.sqrt(magB));
+}
+
+function categoryScoreFromText(queryText, category){
+  const queryTokens = tokenize(normalizeText(queryText));
+  const querySet = new Set(queryTokens);
+  const categoryKeywords = (category.keywords || []).map(k => normalizeText(k));
+  const directHits = categoryKeywords.filter(term => querySet.has(term)).length;
+  const keywordRatio = directHits / Math.max(1, Math.min(12, categoryKeywords.length));
+  const hitCoverage = directHits / Math.max(1, categoryKeywords.length);
+  const categoryTokens = tokenize(normalizeText(category.text + " " + categoryKeywords.join(" ")));
+  const freqA = wordFreq(queryTokens);
+  const freqB = wordFreq(categoryTokens);
+  const base = cosineSimilarity(freqA, freqB);
+  const weightedScore = (keywordRatio * 0.7) + (hitCoverage * 0.6) + (base * 0.4);
+  return Math.min(1, Math.max(base, weightedScore));
+}
+function readFileAsText(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result || "");
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(file);
+  });
+}
+
+function normalizeText(text){
+  return (text || "")
+    .replace(/\s+/g, " ")
+    .replace(/[^a-zA-Z0-9\s]/g, " ")
+    .toLowerCase()
+    .trim();
+}
+
+function keywordCoverageScore(queryTokens, categoryKeywords){
+  const querySet = new Set(queryTokens);
+  const hits = (categoryKeywords || []).filter(term => querySet.has(term)).length;
+  return hits / Math.max((categoryKeywords || []).length, 1);
+}
+
+async function extractUploadedText(file){
+  const name = (file && file.name) ? file.name.toLowerCase() : "";
+
+  if(name.endsWith('.txt')){
+    return await readFileAsText(file);
+  }
+
+  if(name.endsWith('.pdf')){
+    try{
+      if (window.pdfjsLib && window.pdfjsLib.getDocument) {
+        const buf = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+        let text = "";
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          const pageText = content.items.map(item => item.str || "").join(" ");
+          text += " " + pageText;
+        }
+        return text;
+      }
+    }catch(error){
+      // fall through to a readable text fallback below
+    }
+  }
+
+  if(name.endsWith('.docx') || name.endsWith('.doc')){
+    try{
+      if (window.mammoth && typeof window.mammoth.extractRawText === 'function') {
+        const result = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+        return result.value || "";
+      }
+    }catch(error){
+      // fall through to best-effort text fallback
+    }
+  }
+
+  if(name.endsWith('.png') || name.endsWith('.jpg') || name.endsWith('.jpeg') || name.endsWith('.webp') || name.endsWith('.bmp') || name.endsWith('.tiff')){
+    try{
+      if (window.Tesseract && typeof window.Tesseract.recognize === 'function') {
+        const result = await window.Tesseract.recognize(file, 'eng');
+        const ocrText = result?.data?.text || '';
+        if (ocrText && ocrText.trim()) {
+          return ocrText;
+        }
+      }
+    }catch(error){
+      // fall through to a filename-based fallback if OCR is unavailable
+    }
+    try{
+      return normalizeText(file.name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' '));
+    }catch(error){
+      return "";
+    }
+  }
+
+  try{
+    const raw = await readFileAsText(file);
+    return normalizeText(raw);
+  }catch(error){
+    return "";
+  }
+}
+
+// --- Page 1: category comparison -------------------------------------------
+function renderCategoryDemoCards(){
+  const items = getCategoryPool();
+  document.getElementById('catDemoGrid').innerHTML = items.map(c => `
+    <div class="card">
+      <span class="tag">${c.label} · preview</span>
+      <h3>${c.cardName}</h3>
+      <span class="filename">${c.cardFile}</span>
+    </div>`).join('');
+}
+
+function refreshCategoryFileMeta(){
+  const fileInput = document.getElementById('catFile');
+  const meta = document.getElementById('catFileMeta');
+  const files = Array.from(fileInput.files || []);
+
+  if (!files.length) {
+    meta.innerHTML = '';
+    return;
+  }
+
+  meta.innerHTML = files.slice(0, 3).map(file => `
+    <span class="file-chip"><span class="dot"></span>${file.name}</span>
+  `).join('');
+
+  if (files.length > 3) {
+    meta.innerHTML += '<span class="file-chip"><span class="dot"></span>+' + (files.length - 3) + ' more</span>';
+  }
+}
+
+document.getElementById('catFile').addEventListener('change', refreshCategoryFileMeta);
+
+async function runCategoryCompare(){
+  const files = Array.from(document.getElementById('catFile').files || []);
+  const slot = document.getElementById('catSlot');
+  if(files.length === 0){ alert('Choose a file first.'); return; }
+
+  const queryFile = files[0];
+  const extraTemplateFiles = files.slice(1);
+
+  if(extraTemplateFiles.length > 0){
+    for(const file of extraTemplateFiles){
+      try{
+        const text = await extractUploadedText(file);
+        customCategoryTemplates.push({
+          name: file.name.replace(/\.[^.]+$/, '') || 'Custom Template',
+          filename: file.name,
+          text,
+        });
+      }catch(e){
+        alert('Could not read one of the extra template files: ' + e.message);
+        return;
+      }
+    }
+    renderCategoryDemoCards();
+  }
+
+  slot.classList.add('busy');
+  try{
+    if(backendUp){
+      const form = new FormData();
+      form.append('file', queryFile);
+      const res = await fetch(`${API}/api/categories/match`, { method: 'POST', body: form });
+      if(res.ok){
+        const data = await safeJson(res);
+        const scored = (data?.results || []).map(item => ({
+          ...CATEGORIES.find(c => c.label === item.label),
+          label: item.confidence_label,
+          score: item.score,
+          icon: item.icon,
+        }));
+
+        document.getElementById('catGrid').innerHTML = scored.map(c => {
+          const v = verdictFor(c.label);
+          const pct = Math.round(c.score * 100);
+          return `
+          <div class="catcard">
+            <div class="icon">${c.icon}</div>
+            <h4>${c.label}</h4>
+            <div class="bar"><div style="width:${pct}%"></div></div>
+            <div class="row">
+              <span class="score">${pct}%</span>
+              <span class="stamp ${v.weak?'weak':''}">${v.text}</span>
+            </div>
+          </div>`;
+        }).join('');
+        document.getElementById('catResults').classList.remove('hidden');
+        return;
+      }
+    }
+
+    const text = await extractUploadedText(queryFile);
+    const scored = getCategoryPool().map(c => {
+      const score = categoryScoreFromText(text, c);
+      return { ...c, score, label: confidenceLabelFor(score) };
+    }).sort((a,b) => b.score - a.score);
+
+    document.getElementById('catGrid').innerHTML = scored.map(c => {
+      const v = verdictFor(c.label);
+      const pct = Math.round(c.score * 100);
+      return `
+      <div class="catcard">
+        <div class="icon">${c.icon}</div>
+        <h4>${c.label}</h4>
+        <div class="bar"><div style="width:${pct}%"></div></div>
+        <div class="row">
+          <span class="score">${pct}%</span>
+          <span class="stamp ${v.weak?'weak':''}">${v.text}</span>
+        </div>
+      </div>`;
+    }).join('');
+    document.getElementById('catResults').classList.remove('hidden');
+  }catch(e){
+    alert("Error reading file: " + e.message);
+  }finally{
+    slot.classList.remove('busy');
+  }
+}
+
+// --- Page 2: templates + matching -------------------------------------------
+async function checkHealth(){
+  const notice = document.getElementById('apiNotice');
+  try{
+    const res = await fetch(`${API}/api/health`);
+    if(!res.ok) throw new Error();
+    backendUp = true;
+    notice.style.display = "none";
+  }catch(e){
+    backendUp = false;
+    notice.textContent = "Could not reach the backend — filed templates are kept in this browser tab only, and matching uses a rougher offline text estimate instead of the real semantic model.";
+    notice.style.display = "block";
+  }
+}
+
+function renderLocalTemplateCards(){
+  const grid = document.getElementById('tplGrid');
+  if(localCustomTemplates.length === 0){
+    grid.innerHTML = "<p style='color:#9C9686;'>No templates filed yet. Add one below to get started.</p>";
+    return;
+  }
+  grid.innerHTML = localCustomTemplates.map((t,i) => `
+    <div class="card">
+      <span class="tag">${t.category || 'Uncategorized'}</span>
+      <h3>${t.name}</h3>
+      <span class="filename">${t.filename}</span>
+      <button class="del-link" onclick="removeLocalTemplate(${i})">Remove</button>
+    </div>`).join('');
+}
+
+function removeLocalTemplate(index){
+  localCustomTemplates.splice(index, 1);
+  renderLocalTemplateCards();
+}
+
+async function renderTemplates(){
+  const grid = document.getElementById('tplGrid');
+  grid.innerHTML = "<p style='color:#9C9686;'>Loading…</p>";
+  try{
+    const res = await fetch(`${API}/api/templates`);
+    if(!res.ok) throw new Error();
+    const templates = await safeJson(res);
+    if(!templates) throw new Error();
+    backendUp = true;
+    if(templates.length===0){ grid.innerHTML = "<p style='color:#9C9686;'>No templates filed yet. Add one below to get started.</p>"; return; }
+    grid.innerHTML = templates.map(t=>`
+      <div class="card">
+        <span class="tag">${t.category||'Uncategorized'}</span>
+        <h3>${t.name}</h3>
+        <span class="filename">${t.filename}</span>
+        <button class="del-link" onclick="removeTemplate(${t.id})">Remove</button>
+      </div>`).join('');
+  }catch(e){
+    backendUp = false;
+    renderLocalTemplateCards();
+  }
+}
+
+async function removeTemplate(id){
+  if(!backendUp) return;
+  await fetch(`${API}/api/templates/${id}`, {method:"DELETE"});
+  renderTemplates();
+}
+
+async function addTemplate(){
+  const name = document.getElementById('tplName').value.trim();
+  const category = document.getElementById('tplCategory').value.trim();
+  const files = Array.from(document.getElementById('tplFile').files || []);
+  const status = document.getElementById('tplStatus');
+
+  if(files.length === 0){
+    status.textContent = "Choose at least one template file.";
+    return;
+  }
+
+  if(!backendUp){
+    status.textContent = "Filing locally (offline mode)…";
+    try{
+      for(const file of files){
+        const text = await readFileAsText(file);
+        localCustomTemplates.push({
+          name: name || file.name.replace(/\.[^.]+$/, '') || 'Custom Template',
+          category,
+          filename: file.name,
+          text,
+        });
+      }
+      status.textContent = `Filed ${files.length} template${files.length > 1 ? 's' : ''} to this browser tab (won't persist after reload — start the backend to save permanently).`;
+      document.getElementById('tplName').value='';
+      document.getElementById('tplCategory').value='';
+      renderLocalTemplateCards();
+    }catch(e){
+      status.textContent = "Error: " + e.message;
+    }
+    return;
+  }
+
+  status.textContent = `Filing ${files.length} template${files.length > 1 ? 's' : ''}...`;
+  try{
+    for(const file of files){
+      const form = new FormData();
+      form.append("file", file);
+      form.append("name", name || file.name.replace(/\.[^.]+$/, '') || 'Custom Template');
+      if(category) form.append("category", category);
+
+      const res = await fetch(`${API}/api/templates`, {method:"POST", body:form});
+      if(!res.ok){
+        const body = await safeJson(res);
+        throw new Error(body?.detail || `Upload failed (status ${res.status})`);
+      }
+    }
+    status.textContent = `Filed ${files.length} template${files.length > 1 ? 's' : ''}.`;
+    document.getElementById('tplName').value='';
+    document.getElementById('tplCategory').value='';
+    renderTemplates();
+  }catch(e){
+    status.textContent = "Error: " + e.message;
+  }
+}
+
+function renderMatches(matches, extractionLabel){
+  document.getElementById('matchNote').textContent = `Extraction: ${extractionLabel}`;
+  document.getElementById('resultList').innerHTML = matches.map(m=>{
+    const v = verdictFor(m.confidence_label);
+    const pct = Math.round(m.similarity_score*100);
+    return `
+    <div class="result">
+      <div class="info">
+        <h4>${m.name}</h4>
+        <div class="bar"><div style="width:${pct}%"></div></div>
+      </div>
+      <div class="score">${pct}%</div>
+      <div class="stamp ${v.weak?'weak':''}">${v.text}</div>
+    </div>`;
+  }).join('') || "<p style='color:#9C9686;'>No templates to compare against yet — file one first.</p>";
+  document.getElementById('results').classList.remove('hidden');
+}
+
+function localMatchAgainstCustom(queryText){
+  const queryFreq = wordFreq(tokenize(queryText));
+  return localCustomTemplates
+    .map(t => {
+      const score = cosineSimilarity(queryFreq, wordFreq(tokenize(t.text)));
+      return {
+        name: t.name,
+        category: t.category,
+        similarity_score: Math.round(score * 10000) / 10000,
+        confidence_label: confidenceLabelFor(score),
+      };
+    })
+    .sort((a,b) => b.similarity_score - a.similarity_score);
+}
+
+async function runMatch(){
+  const file = document.getElementById('matchFile').files[0];
+  const slot = document.getElementById('matchSlot');
+  if(!file){ alert('Choose a file first.'); return; }
+
+  slot.classList.add('busy');
+  try{
+    if(backendUp){
+      const form = new FormData();
+      form.append("file", file);
+      try{
+        const res = await fetch(`${API}/api/match`, {method:"POST", body:form});
+        if(!res.ok){
+          const body = await safeJson(res);
+          throw new Error(body?.detail || `Match failed (status ${res.status})`);
+        }
+        const data = await safeJson(res);
+        if(!data) throw new Error("Server returned an empty response.");
+        renderMatches(data.top_matches, data.extraction_method);
+        return;
+      }catch(networkErr){
+        backendUp = false;
+      }
+    }
+
+    const text = await readFileAsText(file);
+    const matches = localMatchAgainstCustom(text);
+    renderMatches(matches, "offline_text_estimate");
+  }catch(e){
+    alert("Error: " + e.message);
+  }finally{
+    slot.classList.remove('busy');
+  }
+}
+
+checkHealth();
+renderTemplates();
+renderCategoryDemoCards();
+</script>
+</body>
+</html>
