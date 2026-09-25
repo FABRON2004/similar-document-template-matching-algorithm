@@ -89,9 +89,17 @@ def extract_text(filename: str, file_bytes: bytes) -> ExtractionResult:
         return _extract_docx(file_bytes)
     elif ext == ".txt":
         return _extract_txt(file_bytes)
+<<<<<<< HEAD
     elif ext in (".png", ".jpg", ".jpeg", ".tiff", ".bmp", ".webp"):
         return _extract_image(file_bytes)
     else:
         raise ValueError(
             f"Unsupported file type '{ext}'. Supported: .pdf, .docx, .txt, .png, .jpg, .jpeg, .webp"
+=======
+    elif ext in (".png", ".jpg", ".jpeg", ".tiff", ".bmp"):
+        return _extract_image(file_bytes)
+    else:
+        raise ValueError(
+            f"Unsupported file type '{ext}'. Supported: .pdf, .docx, .txt, .png, .jpg, .jpeg"
+>>>>>>> ba5f726fc4c60de617d94b6f15883cd8ae6b35d2
         )

@@ -20,13 +20,17 @@ from fastapi.responses import FileResponse
 from pathlib import Path
 from typing import Optional
 
+<<<<<<< HEAD
 import numpy as np
 
+=======
+>>>>>>> ba5f726fc4c60de617d94b6f15883cd8ae6b35d2
 from . import storage, matcher
 from .extractor import extract_text
 from .embedder import embed_text
 from .models import TemplateOut, MatchResponse, MatchResult, DeleteResponse
 
+<<<<<<< HEAD
 CATEGORY_TEMPLATES = {
     "business": {
         "label": "Business",
@@ -71,6 +75,8 @@ CATEGORY_TEMPLATES = {
     },
 }
 
+=======
+>>>>>>> ba5f726fc4c60de617d94b6f15883cd8ae6b35d2
 app = FastAPI(
     title="Document Template Matching API",
     description="Upload template documents, then match new documents against them "
@@ -177,6 +183,7 @@ def remove_template(template_id: int):
     return DeleteResponse(deleted_id=template_id, message="Template deleted.")
 
 
+<<<<<<< HEAD
 @app.post("/api/categories/match")
 async def match_document_against_categories(file: UploadFile = File(...)):
     """Compare one document against the fixed category templates using embeddings."""
@@ -216,6 +223,8 @@ async def match_document_against_categories(file: UploadFile = File(...)):
     }
 
 
+=======
+>>>>>>> ba5f726fc4c60de617d94b6f15883cd8ae6b35d2
 @app.post("/api/match", response_model=MatchResponse)
 async def match_document(file: UploadFile = File(...), top_n: int = 5):
     """Upload any document and get back the top-N most similar templates."""

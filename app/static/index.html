@@ -19,11 +19,19 @@
     font-family:'IBM Plex Sans',sans-serif;
     padding:calc(28px + env(safe-area-inset-top,0px)) 20px calc(60px + env(safe-area-inset-bottom,0px));
   }
+<<<<<<< HEAD
   .wrap{max-width:940px; margin:0 auto;}
   .brand{display:flex; align-items:baseline; gap:10px; margin-bottom:2px;}
   .brand h1{font-family:'Fraunces',serif; font-weight:600; font-size:1.9rem; margin:0; letter-spacing:-0.01em;}
   .brand span{color:var(--graphite); font-size:0.85rem;}
   .tagline{color:var(--graphite); margin:0 0 26px; max-width:52ch; line-height:1.5;}
+=======
+  .wrap{max-width:900px; margin:0 auto;}
+  .brand{display:flex; align-items:baseline; gap:10px; margin-bottom:2px;}
+  .brand h1{font-family:'Fraunces',serif; font-weight:600; font-size:1.9rem; margin:0; letter-spacing:-0.01em;}
+  .brand span{color:var(--graphite); font-size:0.85rem;}
+  .tagline{color:var(--graphite); margin:0 0 26px; max-width:46ch; line-height:1.5;}
+>>>>>>> ba5f726fc4c60de617d94b6f15883cd8ae6b35d2
 
   nav{display:flex; gap:2px; margin-bottom:0;}
   .tab{
@@ -37,6 +45,7 @@
     padding:28px; border:1px solid var(--paper);
   }
   .hidden{display:none;}
+<<<<<<< HEAD
   .panel-sub{color:#8A8577; font-size:0.85rem; margin:0 0 22px; max-width:60ch; line-height:1.5;}
 
   .catgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-top:22px;}
@@ -54,6 +63,10 @@
   }
   .catcard .stamp.weak{color:var(--graphite); border-color:var(--graphite); opacity:0.75;}
 
+=======
+
+  /* Templates panel */
+>>>>>>> ba5f726fc4c60de617d94b6f15883cd8ae6b35d2
   .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:14px; margin-top:18px;}
   .card{
     background:var(--paper); border:1px solid #D8D3C6; border-radius:2px 10px 2px 2px;
@@ -86,14 +99,21 @@
   button.action:hover{background:#2A3138;}
   .status{font-size:0.78rem; color:#8A8577; margin-top:8px;}
 
+<<<<<<< HEAD
   .slot{
     border:2px dashed #C9C2AE; border-radius:10px; padding:30px 20px; text-align:center;
+=======
+  /* Match panel */
+  .slot{
+    border:2px dashed #C9C2AE; border-radius:10px; padding:34px 20px; text-align:center;
+>>>>>>> ba5f726fc4c60de617d94b6f15883cd8ae6b35d2
     background:#F5F2EA; position:relative; overflow:hidden;
   }
   .slot.busy::after{
     content:""; position:absolute; left:0; top:0; width:100%; height:3px; background:var(--brass);
     animation:sweep 1.1s ease-in-out;
   }
+<<<<<<< HEAD
   @keyframes sweep{ from{transform:translateY(0);} to{transform:translateY(200px);} }
   .slot p{margin:0 0 14px; color:#6B6558; font-size:0.9rem;}
   .slot .hint{font-size:0.76rem; color:#9C9686; margin-top:10px;}
@@ -106,6 +126,11 @@
     border:1px solid #D9D2C5; background:#fff; color:#2D343B; font-size:0.74rem;
   }
   .file-chip .dot{width:8px; height:8px; border-radius:50%; background:var(--brass); display:inline-block;}
+=======
+  @keyframes sweep{ from{transform:translateY(0);} to{transform:translateY(220px);} }
+  .slot p{margin:0 0 14px; color:#6B6558; font-size:0.9rem;}
+  .slot .hint{font-size:0.76rem; color:#9C9686; margin-top:10px;}
+>>>>>>> ba5f726fc4c60de617d94b6f15883cd8ae6b35d2
 
   .results{margin-top:24px;}
   .results h2{font-family:'Fraunces',serif; font-size:1.1rem; font-weight:600; margin:0 0 4px;}
@@ -140,6 +165,7 @@
   <div class="notice" id="apiNotice">Connecting to backend…</div>
 
   <nav>
+<<<<<<< HEAD
     <button class="tab active" onclick="showPage('categories')">Compare against categories</button>
     <button class="tab" onclick="showPage('templates')">Your templates</button>
   </nav>
@@ -170,10 +196,18 @@
     <p class="panel-sub">File your own reference templates below, then upload a document to see which of your filed templates it matches most closely. You can add 2+ templates in one go.</p>
 
     <h3 style="font-family:'Fraunces',serif; font-size:1rem; margin:0 0 4px;">Your filed templates</h3>
+=======
+    <button class="tab active" onclick="showTab('templates')">Templates</button>
+    <button class="tab" onclick="showTab('match')">Match a document</button>
+  </nav>
+
+  <div class="panel" id="panel-templates">
+>>>>>>> ba5f726fc4c60de617d94b6f15883cd8ae6b35d2
     <div class="grid" id="tplGrid"></div>
     <div class="addbar">
       <input type="text" id="tplName" placeholder="Template name">
       <input type="text" id="tplCategory" placeholder="Category">
+<<<<<<< HEAD
       <input type="file" id="tplFile" multiple>
       <button class="action" onclick="addTemplate()">File template</button>
     </div>
@@ -192,10 +226,30 @@
         <p class="note" id="matchNote">Extraction: native_text (sample)</p>
         <div id="resultList"></div>
       </div>
+=======
+      <input type="file" id="tplFile">
+      <button class="action" onclick="addTemplate()">File template</button>
+    </div>
+    <div class="status" id="tplStatus"></div>
+  </div>
+
+  <div class="panel hidden" id="panel-match">
+    <div class="slot" id="slot">
+      <p>Drop a file here, or choose one</p>
+      <input type="file" id="matchFile">
+      <div class="hint">PDF · DOCX · TXT · scanned images all accepted</div>
+    </div>
+    <button class="action" style="margin-top:16px;" onclick="runMatch()">Find matches</button>
+    <div class="results hidden" id="results">
+      <h2>Closest matches</h2>
+      <p class="note">Extraction: native_text (sample)</p>
+      <div id="resultList"></div>
+>>>>>>> ba5f726fc4c60de617d94b6f15883cd8ae6b35d2
     </div>
   </div>
 </div>
 
+<<<<<<< HEAD
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -322,6 +376,28 @@ function getCategoryPool(){
   ];
 }
 
+=======
+<script>
+const API = ""; // same origin as this page
+
+function showTab(name){
+  document.getElementById('panel-templates').classList.toggle('hidden', name!=='templates');
+  document.getElementById('panel-match').classList.toggle('hidden', name!=='match');
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',(name==='templates'&&i===0)||(name==='match'&&i===1)));
+}
+
+// Map backend confidence_label -> stamp text + weak styling
+// Fallback data shown only when the backend can't be reached, so the
+// page never looks broken/blank while you're demoing without the server up.
+const SAMPLE_TEMPLATES = [
+  {id:"s1", name:"Invoice Template A", category:"Finance", filename:"invoice_a.pdf"},
+  {id:"s2", name:"Certificate of Completion", category:"Education", filename:"certificate.docx"},
+  {id:"s3", name:"Purchase Order", category:"Finance", filename:"po_template.pdf"},
+];
+let backendUp = true;
+
+// Parses JSON only if there actually is a body; never throws on empty/non-JSON responses.
+>>>>>>> ba5f726fc4c60de617d94b6f15883cd8ae6b35d2
 async function safeJson(res){
   const text = await res.text();
   if(!text) return null;
@@ -338,6 +414,7 @@ function verdictFor(label){
   return map[label] || {text:label ? label.toUpperCase() : "UNKNOWN", weak:true};
 }
 
+<<<<<<< HEAD
 function confidenceLabelFor(score){
   if(score >= 0.80) return "High";
   if(score >= 0.60) return "Medium";
@@ -595,6 +672,8 @@ async function runCategoryCompare(){
 }
 
 // --- Page 2: templates + matching -------------------------------------------
+=======
+>>>>>>> ba5f726fc4c60de617d94b6f15883cd8ae6b35d2
 async function checkHealth(){
   const notice = document.getElementById('apiNotice');
   try{
@@ -604,11 +683,16 @@ async function checkHealth(){
     notice.style.display = "none";
   }catch(e){
     backendUp = false;
+<<<<<<< HEAD
     notice.textContent = "Could not reach the backend — filed templates are kept in this browser tab only, and matching uses a rougher offline text estimate instead of the real semantic model.";
+=======
+    notice.textContent = "Could not reach the backend — showing sample templates below as a preview.";
+>>>>>>> ba5f726fc4c60de617d94b6f15883cd8ae6b35d2
     notice.style.display = "block";
   }
 }
 
+<<<<<<< HEAD
 function renderLocalTemplateCards(){
   const grid = document.getElementById('tplGrid');
   if(localCustomTemplates.length === 0){
@@ -629,6 +713,18 @@ function removeLocalTemplate(index){
   renderLocalTemplateCards();
 }
 
+=======
+function renderSampleCards(){
+  const grid = document.getElementById('tplGrid');
+  grid.innerHTML = SAMPLE_TEMPLATES.map(t=>`
+    <div class="card">
+      <span class="tag">${t.category} · preview</span>
+      <h3>${t.name}</h3>
+      <span class="filename">${t.filename}</span>
+    </div>`).join('');
+}
+
+>>>>>>> ba5f726fc4c60de617d94b6f15883cd8ae6b35d2
 async function renderTemplates(){
   const grid = document.getElementById('tplGrid');
   grid.innerHTML = "<p style='color:#9C9686;'>Loading…</p>";
@@ -648,12 +744,20 @@ async function renderTemplates(){
       </div>`).join('');
   }catch(e){
     backendUp = false;
+<<<<<<< HEAD
     renderLocalTemplateCards();
+=======
+    renderSampleCards();
+>>>>>>> ba5f726fc4c60de617d94b6f15883cd8ae6b35d2
   }
 }
 
 async function removeTemplate(id){
+<<<<<<< HEAD
   if(!backendUp) return;
+=======
+  if(!backendUp) return; // sample cards aren't real — nothing to delete
+>>>>>>> ba5f726fc4c60de617d94b6f15883cd8ae6b35d2
   await fetch(`${API}/api/templates/${id}`, {method:"DELETE"});
   renderTemplates();
 }
@@ -661,6 +765,7 @@ async function removeTemplate(id){
 async function addTemplate(){
   const name = document.getElementById('tplName').value.trim();
   const category = document.getElementById('tplCategory').value.trim();
+<<<<<<< HEAD
   const files = Array.from(document.getElementById('tplFile').files || []);
   const status = document.getElementById('tplStatus');
 
@@ -706,6 +811,25 @@ async function addTemplate(){
       }
     }
     status.textContent = `Filed ${files.length} template${files.length > 1 ? 's' : ''}.`;
+=======
+  const file = document.getElementById('tplFile').files[0];
+  const status = document.getElementById('tplStatus');
+  if(!name || !file){ status.textContent = "Name and file are required."; return; }
+
+  const form = new FormData();
+  form.append("file", file);
+  form.append("name", name);
+  if(category) form.append("category", category);
+
+  status.textContent = "Filing...";
+  try{
+    const res = await fetch(`${API}/api/templates`, {method:"POST", body:form});
+    if(!res.ok){
+      const body = await safeJson(res);
+      throw new Error(body?.detail || `Upload failed (status ${res.status})`);
+    }
+    status.textContent = "Filed.";
+>>>>>>> ba5f726fc4c60de617d94b6f15883cd8ae6b35d2
     document.getElementById('tplName').value='';
     document.getElementById('tplCategory').value='';
     renderTemplates();
@@ -714,6 +838,7 @@ async function addTemplate(){
   }
 }
 
+<<<<<<< HEAD
 function renderMatches(matches, extractionLabel){
   document.getElementById('matchNote').textContent = `Extraction: ${extractionLabel}`;
   document.getElementById('resultList').innerHTML = matches.map(m=>{
@@ -775,6 +900,42 @@ async function runMatch(){
     const text = await readFileAsText(file);
     const matches = localMatchAgainstCustom(text);
     renderMatches(matches, "offline_text_estimate");
+=======
+async function runMatch(){
+  const file = document.getElementById('matchFile').files[0];
+  const results = document.getElementById('results');
+  const slot = document.getElementById('slot');
+  if(!file){ alert('Choose a file first.'); return; }
+
+  const form = new FormData();
+  form.append("file", file);
+
+  slot.classList.add('busy');
+  try{
+    const res = await fetch(`${API}/api/match`, {method:"POST", body:form});
+    if(!res.ok){
+      const body = await safeJson(res);
+      throw new Error(body?.detail || `Match failed (status ${res.status})`);
+    }
+    const data = await safeJson(res);
+    if(!data) throw new Error("Server returned an empty response.");
+
+    document.querySelector('.results .note').textContent = `Extraction: ${data.extraction_method}`;
+    document.getElementById('resultList').innerHTML = data.top_matches.map(m=>{
+      const v = verdictFor(m.confidence_label);
+      const pct = Math.round(m.similarity_score*100);
+      return `
+      <div class="result">
+        <div class="info">
+          <h4>${m.name}</h4>
+          <div class="bar"><div style="width:${pct}%"></div></div>
+        </div>
+        <div class="score">${pct}%</div>
+        <div class="stamp ${v.weak?'weak':''}">${v.text}</div>
+      </div>`;
+    }).join('') || "<p style='color:#9C9686;'>No templates to compare against yet — file one first.</p>";
+    results.classList.remove('hidden');
+>>>>>>> ba5f726fc4c60de617d94b6f15883cd8ae6b35d2
   }catch(e){
     alert("Error: " + e.message);
   }finally{
@@ -784,7 +945,10 @@ async function runMatch(){
 
 checkHealth();
 renderTemplates();
+<<<<<<< HEAD
 renderCategoryDemoCards();
+=======
+>>>>>>> ba5f726fc4c60de617d94b6f15883cd8ae6b35d2
 </script>
 </body>
 </html>
